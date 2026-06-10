@@ -1,31 +1,118 @@
 <!DOCTYPE html>
-<html lang='ja'>
+<html lang="ja">
+
 <head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content="width=device-width, initial-scale=1.0">
-    <meta http-equiv='X-UA-Compatible' content="ie=edge">
-    <title>Quality Defect Checker</title>
-    <link rel='stylesheet' href="{{ url_for('static', filename='stylesheet.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Defect Detection System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='stylesheet.css') }}">
 </head>
+
 <body>
-    <header>   
-        <img class='header_img' src="https://aidemyexstorage.blob.core.windows.net/aidemycontents/1621500180546399.png" alt="Aidemy" style="width: 150px; height: auto;">
-        <a class='header-logo' href="#">Quality Defect Checker</a>
+
+    <header>
+        <div class="logo">
+            ⚙️ 工場不良品検知システム
+        </div>
     </header>
 
-    <div class='main'>    
-        <h2> AIが送信された画像の合否を判定します</h2>
-        <p>画像を送信してください</p>
-        <form method='POST' enctype="multipart/form-data">
-            <input class='file_choose' type="file" name="file">
-            <input class='btn' value="submit!" type="submit">
-        </form>
-        <div class='answer'>{{answer}}</div>
-    </div>
+    <main class="container">
+
+        <div class="panel">
+
+            <h2 class="subtitle">
+                教師あり学習モデル（VGG16）による品質検査
+            </h2>
+
+            <div class="upload-box">
+
+                <div class="upload-icon">
+                    🏭
+                </div>
+
+                <h3>検査対象画像をアップロード</h3>
+
+                <p>
+                    JPG / PNG / JPEG ファイルに対応
+                </p>
+
+                <form method="POST"
+                      enctype="multipart/form-data">
+
+                    <div class="file-area">
+
+                        <input
+                            id="file-upload"
+                            class="file_choose"
+                            type="file"
+                            name="file">
+
+                        <label for="file-upload" class="file-label">
+                            📁 画像を選択
+                        </label>
+
+                        <span id="file-name" class="file-name">
+                            ファイル未選択
+                        </span>
+
+                    </div>
+
+                    <button
+                        class="btn"
+                        type="submit">
+                        判定開始
+                    </button>
+
+                    <div id="error-message" class="error-message"></div>
+
+                </form>
+
+            </div>
+
+            {% if answer %}
+            <div class="answer">
+                {{ answer }}
+            </div>
+            {% endif %}
+
+        </div>
+
+    </main>
 
     <footer>
-        <img class='footer_img' src="https://aidemyexstorage.blob.core.windows.net/aidemycontents/1621500180546399.png" alt="Aidemy" style="width: 150px; height: auto;">
-        <small>&copy; 2019 Aidemy, inc.</small>   
+        <p>ディープラーニング © 2026</p>
     </footer>
+
+<script>
+
+const fileInput = document.getElementById('file-upload');
+const fileName = document.getElementById('file-name');
+const form = document.querySelector("form");
+const errorMessage = document.getElementById("error-message");
+
+fileInput.addEventListener('change', function(){
+
+    if(this.files.length > 0){
+        fileName.textContent = this.files[0].name;
+    }else{
+        fileName.textContent = 'ファイル未選択';
+    }
+
+});
+
+form.addEventListener('submit', function(e){
+    if(!fileInput.files.length){
+        e.preventDefault();
+        errorMessage.textContent = 'ファイルを選択してください';
+    }else{
+        errorMessage.textContent = '';
+    }
+});
+
+</script>
+
 </body>
+
 </html>
