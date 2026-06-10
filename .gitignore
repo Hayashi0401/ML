@@ -1,0 +1,12 @@
+# 仮想環境
+.venv/
+
+# 画像フォルダ
+ok_front/
+def_front/
+JUDGE/
+
+# AIの学習済みモデルの保存フォルダを除外
+results/
+*.h5
+*.keras
