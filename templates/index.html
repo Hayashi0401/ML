@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factory Defect Detection System</title>
+    <title>Mobile Defect Classifier</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='stylesheet.css') }}">
@@ -12,9 +12,13 @@
 
 <body>
 
-    <header>
-        <div class="logo">
-            ⚙️ 工場不良品検知システム
+    <header class="site-header">
+        <div>
+            <p class="eyebrow">Supervised Learning Inspection</p>
+            <h1>スマホ表面欠陥分類システム</h1>
+        </div>
+        <div class="model-badge">
+            VGG16 / 4 classes
         </div>
     </header>
 
@@ -22,59 +26,77 @@
 
         <div class="panel">
 
-            <h2 class="subtitle">
-                教師あり学習モデル（VGG16）による品質検査
-            </h2>
+            <section class="intro">
+                <div>
+                    <h2>画像から欠陥タイプを判定</h2>
+                    <p>
+                        スマートフォン表面の画像をアップロード、またはカメラで撮影して
+                        good / oil / scratch / stain の4クラスに分類します。
+                    </p>
+                </div>
+            </section>
+
+            <div class="class-list" aria-label="分類クラス">
+                <span class="class-chip good">good</span>
+                <span class="class-chip oil">oil</span>
+                <span class="class-chip scratch">scratch</span>
+                <span class="class-chip stain">stain</span>
+            </div>
 
             <div class="upload-box">
 
-                <div class="upload-icon">
-                    🏭
+                <div class="preview-frame">
+                    <div id="preview-placeholder" class="preview-placeholder">
+                        画像プレビュー
+                    </div>
+                    <img id="image-preview" class="image-preview" alt="選択した検査画像">
                 </div>
 
-                <h3>検査対象画像をアップロード</h3>
+                <div class="upload-content">
+                    <h3>検査画像を選択</h3>
 
-                <p>
-                    JPG / PNG / JPEG ファイルに対応
-                </p>
+                    <p>
+                        JPG / PNG / JPEG に対応。スマホの場合はカメラ撮影も使えます。
+                    </p>
 
-                <form method="POST"
-                      enctype="multipart/form-data">
+                    <form method="POST"
+                          enctype="multipart/form-data">
 
-                    <div class="file-area">
+                        <div class="file-area">
 
-                        <input
-                            id="file-upload"
-                            class="file_choose"
-                            type="file"
-                            name="file">
+                            <input
+                                id="file-upload"
+                                class="file_choose"
+                                type="file"
+                                name="file"
+                                accept="image/*">
 
-                        <label for="file-upload" class="file-label">
-                            📁 画像を選択
-                        </label>
+                            <label for="file-upload" class="file-label">
+                                画像を選択
+                            </label>
 
-                        <span id="file-name" class="file-name">
-                            ファイル未選択
-                        </span>
+                            <span id="file-name" class="file-name">
+                                ファイル未選択
+                            </span>
 
-                    </div>
+                        </div>
 
-                    <button
-                        class="btn"
-                        type="submit">
-                        判定開始
-                    </button>
+                        <button class="btn" type="submit">
+                            判定開始
+                        </button>
 
-                    <div id="error-message" class="error-message"></div>
+                        <div id="error-message" class="error-message"></div>
 
-                </form>
+                    </form>
+                </div>
 
             </div>
 
             {% if answer %}
-            <div class="answer">
-                {{ answer }}
-            </div>
+            <section class="answer" aria-live="polite">
+                <span>判定結果</span>
+                <strong>{{ answer }}</strong>
+            </section>
             {% endif %}
 
         </div>
@@ -82,7 +104,7 @@
     </main>
 
     <footer>
-        <p>ディープラーニング © 2026</p>
+        <p>Mobile Phone Defect Classification</p>
     </footer>
 
 <script>
@@ -91,13 +113,22 @@ const fileInput = document.getElementById('file-upload');
 const fileName = document.getElementById('file-name');
 const form = document.querySelector("form");
 const errorMessage = document.getElementById("error-message");
+const imagePreview = document.getElementById("image-preview");
+const previewPlaceholder = document.getElementById("preview-placeholder");
 
 fileInput.addEventListener('change', function(){
 
     if(this.files.length > 0){
-        fileName.textContent = this.files[0].name;
+        const file = this.files[0];
+        fileName.textContent = file.name;
+        imagePreview.src = URL.createObjectURL(file);
+        imagePreview.style.display = "block";
+        previewPlaceholder.style.display = "none";
     }else{
         fileName.textContent = 'ファイル未選択';
+        imagePreview.removeAttribute("src");
+        imagePreview.style.display = "none";
+        previewPlaceholder.style.display = "grid";
     }
 
 });

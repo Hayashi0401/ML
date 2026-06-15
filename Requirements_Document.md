@@ -119,7 +119,7 @@
 
 | 項目 | 内容 |
 |--------|------|
-| 判定結果 | OK / DEFECT |
+| 判定結果 | good / oil / scratch / stain |
 | 信頼度 | パーセンテージ表示 |
 
 ### MVP
@@ -256,22 +256,24 @@ VGG16（Transfer Learning）
 
 ## 分類方式
 
-二値分類
+4クラス分類
 
 | クラス |
 |----------|
-| OK |
-| DEFECT |
+| good |
+| oil |
+| scratch |
+| stain |
 
 ## データセット
 
-Kaggle Casting Product Dataset
+Kaggle Mobile Phone Defect Segmentation Dataset
 
 ## 出力形式
 
 ```json
 {
-  "result": "DEFECT",
+  "result": "scratch",
   "confidence": 87.5
 }
 ```

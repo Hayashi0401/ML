@@ -9,7 +9,7 @@ import numpy as np
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
-classes = ["OK","DEFECT"]
+classes = ["good", "oil", "scratch", "stain"]
 image_size = 200
 
 UPLOAD_FOLDER = "uploads"
@@ -49,7 +49,8 @@ def upload_file():
             #変換したデータをモデルに渡して予測する
             result = model.predict(data)[0]
             predicted = result.argmax()
-            pred_answer = "これは " + classes[predicted] + " です"
+            confidence = result[predicted] * 100
+            pred_answer = f"これは {classes[predicted]} です（信頼度: {confidence:.1f}%）"
 
             return render_template("index.html",answer=pred_answer)
 
