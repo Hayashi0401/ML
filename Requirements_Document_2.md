@@ -28,12 +28,12 @@
 
 - アップロードされた画像を、教師あり学習で訓練したVGG16転移学習モデルで判定する
 - 判定前に画像を 200×200 px にリサイズし、正規化する
-- 判定結果は **OK（正常品）** または **DEFECT（不良品）** の二値で返す
+- 判定結果は **good / oil / scratch / stain** の4クラスで返す
 
 ### FR-03　結果表示機能
 
 - 判定結果をアップロード画面と同一ページに表示する
-- 表示形式：「これは OK です」または「これは DEFECT です」
+- 表示形式：「これは good です」または「これは scratch です」
 
 ---
 
@@ -85,7 +85,7 @@
 | バージョン管理 | GitHub |
 | デプロイ | Render |
 | 学習環境 | Google Colaboratory |
-| データセット | Kaggle casting product dataset |
+| データセット | Kaggle Mobile Phone Defect Segmentation Dataset |
 
 ---
 
@@ -97,6 +97,6 @@
 [Flask app.py]
     ↓ 画像前処理（OpenCV）
 [VGG16モデル（model.h5）]
-    ↓ 判定結果（OK / DEFECT）
+    ↓ 判定結果（good / oil / scratch / stain）
 [ブラウザ（index.html）]
 ```

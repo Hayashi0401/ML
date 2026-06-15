@@ -32,9 +32,9 @@
 
 - **手法**：教師あり学習（画像分類）
 - **モデル**：VGG16 転移学習（ImageNet学習済みモデルを活用）
-- **分類**：正常品（OK）/ 不良品（DEFECT）の二値分類
-- **出力**：判定結果 + 信頼度スコア（例：DEFECT 87%）
-- **データ**：Kaggle casting product dataset（ポンプ用インペラ画像）
+- **分類**：good / oil / scratch / stain の4クラス分類
+- **出力**：判定結果 + 信頼度スコア（例：scratch 87%）
+- **データ**：Kaggle Mobile Phone Defect Segmentation Dataset（スマートフォン表面欠陥画像）
 
 ---
 
@@ -43,7 +43,7 @@
 | 機能 | 説明 | 区分 |
 |---|---|---|
 | 画像アップロード | 製品画像をWebから送信する | MVP |
-| 判定結果表示 | OK / DEFECT + 信頼度スコアを表示する | MVP |
+| 判定結果表示 | good / oil / scratch / stain + 信頼度スコアを表示する | MVP |
 | 判定履歴保存・一覧表示 | 過去の検査結果をDBに保存し一覧で確認できる | MVP |
 | Grad-CAM表示 | AIが画像のどこを見て判断したかを可視化する | 発展 |
 | 統計ダッシュボード | 不良率・種別割合をグラフで表示する | 発展 |
@@ -62,7 +62,7 @@
 | バージョン管理 | GitHub |
 | デプロイ | Render |
 | 学習環境 | Google Colaboratory |
-| データセット | Kaggle casting product dataset |
+| データセット | Kaggle Mobile Phone Defect Segmentation Dataset |
 
 ---
 
