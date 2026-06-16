@@ -46,11 +46,12 @@
             <div class="upload-box">
 
                 <div class="preview-frame">
-                    <div id="preview-placeholder" class="preview-placeholder">
+                    <div id="preview-placeholder" class="preview-placeholder" {% if img_base64 %}style="display: none;"{% endif %}>
                         画像プレビュー
-                    </div>
-                    <img id="image-preview" class="image-preview" alt="選択した検査画像">
                 </div>
+                <img id="image-preview" class="image-preview" alt="選択した検査画像"
+                    {% if img_base64 %} src="{{ img_base64 }}" style="display: block;" {% else %} style="display: none;" {% endif %}>
+        </div>
 
                 <div class="upload-content">
                     <h3>検査画像を選択</h3>
@@ -60,26 +61,35 @@
                     </p>
 
                     <form method="POST"
-                          enctype="multipart/form-data">
+                            enctype="multipart/form-data">
 
                         <div class="file-area">
+    <input id="file-upload" class="file_choose" type="file" name="file" accept="image/*">
+    <label for="file-upload" class="file-label">画像を選択</label>
 
-                            <input
-                                id="file-upload"
-                                class="file_choose"
-                                type="file"
-                                name="file"
-                                accept="image/*">
+    <button type="button" id="start-camera-btn" class="camera-label" title="カメラで撮影">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon">
+            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+            <circle cx="12" cy="13" r="3"></circle>
+        </svg>
+    </button>
 
-                            <label for="file-upload" class="file-label">
-                                画像を選択
-                            </label>
+    <span id="file-name" class="file-name">ファイル未選択</span>
+</div>
 
-                            <span id="file-name" class="file-name">
-                                ファイル未選択
-                            </span>
-
-                        </div>
+<div id="camera-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h3>カメラ撮影</h3>
+        <div class="video-container">
+            <video id="webcamera" autoplay playsinline width="100%"></video>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" id="shutter-btn" class="btn-shutter">シャッターを切る</button>
+            <button type="button" id="close-camera-btn" class="btn-close">閉じる</button>
+        </div>
+        <canvas id="capture-canvas" style="display: none;"></canvas>
+    </div>
+</div>
 
                         <button class="btn" type="submit">
                             判定開始
@@ -116,27 +126,105 @@ const errorMessage = document.getElementById("error-message");
 const imagePreview = document.getElementById("image-preview");
 const previewPlaceholder = document.getElementById("preview-placeholder");
 
-fileInput.addEventListener('change', function(){
+// カメラ用要素
+const startCameraBtn = document.getElementById('start-camera-btn');
+const cameraModal = document.getElementById('camera-modal');
+const video = document.getElementById('webcamera');
+const shutterBtn = document.getElementById('shutter-btn');
+const closeCameraBtn = document.getElementById('close-camera-btn');
+const canvas = document.getElementById('capture-canvas');
 
+let stream = null;
+
+fileInput.addEventListener('change', function(){
     if(this.files.length > 0){
         const file = this.files[0];
         fileName.textContent = file.name;
+
         imagePreview.src = URL.createObjectURL(file);
         imagePreview.style.display = "block";
         previewPlaceholder.style.display = "none";
     }else{
-        fileName.textContent = 'ファイル未選択';
-        imagePreview.removeAttribute("src");
-        imagePreview.style.display = "none";
-        previewPlaceholder.style.display = "grid";
+        resetPreview();
     }
 
 });
 
+function resetPreview() {
+    fileName.textContent = 'ファイル未選択';
+    imagePreview.removeAttribute("src");
+    imagePreview.style.display = "none";
+    previewPlaceholder.style.display = "grid";
+}
+
+startCameraBtn.addEventListener('click', async () => {
+    try {
+        // パソコンやスマホのカメラへのアクセスをリクエスト
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" }, // スマホなら背面、PCなら標準カメラ
+            audio: false
+        });
+        video.srcObject = stream;
+        cameraModal.style.display = 'flex'; // モーダルを表示
+    } catch (err) {
+        alert("カメラの起動に失敗しました。許可されているか確認してください。");
+        console.error(err);
+    }
+});
+
+// ② シャッターボタンを押したとき（撮影）
+shutterBtn.addEventListener('click', () => {
+    if (!stream) return;
+
+    // ビデオの解像度に合わせてキャンバスのサイズを設定
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // キャンバスに現在のビデオ映像を描画（パシャリ）
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // キャンバスの画像をBlob（ファイルデータ）に変換
+    canvas.toBlob((blob) => {
+        // Python側に送るための「ファイルオブジェクト」を作成
+        const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
+        
+        // DataTransferを使って、既存の fileInput に撮影したファイルを無理やりセットする
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+
+        fileInput.files = dataTransfer.files;
+
+        // 画面のプレビューを更新
+        fileName.textContent = file.name;
+        imagePreview.src = URL.createObjectURL(file);
+        imagePreview.style.display = "block";
+        previewPlaceholder.style.display = "none";
+
+        // カメラを止めてモーダルを閉じる
+        stopCamera();
+    }, 'image/jpeg');
+});
+
+// ③ 閉じるボタンを押したとき
+closeCameraBtn.addEventListener('click', () => {
+    stopCamera();
+});
+
+// カメラ停止処理
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    video.srcObject = null;
+    cameraModal.style.display = 'none';
+}
+
+// 送信時のバリデーション
 form.addEventListener('submit', function(e){
-    if(!fileInput.files.length){
+    if(!fileInput.files || !fileInput.files.length){
         e.preventDefault();
-        errorMessage.textContent = 'ファイルを選択してください';
+        errorMessage.textContent = 'ファイルを選択するか、カメラで撮影してください';
     }else{
         errorMessage.textContent = '';
     }
