@@ -38,6 +38,126 @@ body {
     align-items: center;
     gap: 20px;
 }
+.camera-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9; /* 落ち着いたグレー（お好みの色に調整してください） */
+    color: #334155;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    margin-left: 8px; /* 「画像を選択」ボタンとの隙間 */
+    vertical-align: middle;
+}
+
+.camera-label:hover {
+    background-color: #e2e8f0;
+}
+
+/* カメラアイコンの微調整 */
+.camera-icon {
+    display: block;
+}
+
+button.camera-label {
+    border: none;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9;
+    color: #334155;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 8px;
+    vertical-align: middle;
+    transition: background-color 0.2s;
+}
+button.camera-label:hover {
+    background-color: #e2e8f0;
+}
+
+/* 背景を暗くするオーバーレイ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* モーダルコンテンツの箱 */
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #1e293b;
+}
+
+/* ビデオ全体の枠 */
+.video-container {
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    line-height: 0;
+}
+
+/* ボタンエリア */
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-shutter {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-shutter:hover { background-color: #1d4ed8; }
+
+.btn-close {
+    background-color: #64748b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-close:hover { background-color: #475569; }
+
+
+/* file-areaの中で横並びにするための調整（もし崩れる場合） */
+.file-area {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
 
 .eyebrow {
     color: var(--primary);

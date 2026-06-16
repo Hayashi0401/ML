@@ -1,4 +1,5 @@
 import os
+import base64
 from flask import Flask, request, redirect, render_template, flash
 from werkzeug.utils import secure_filename
 from tensorflow.keras.models import Sequential, load_model
@@ -38,23 +39,27 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
             filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
 
-            #受け取った画像を読み込み、np形式に変換
-            img = image.load_img(filepath,target_size=(image_size,image_size))
-            # img = image.load_img(filepath, grayscale=True, target_size=(image_size,image_size))
+            with open(filepath, "rb") as img_file:
+                encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+            ext = filename.rsplit('.', 1)[1].lower()
+            mime_type = f"image/{ext}" if ext != 'jpg' else "image/jpeg"
+            img_base64 = f"data:{mime_type};base64,{encoded_string}"
+
+            img = image.load_img(filepath, target_size=(image_size, image_size))
             img = image.img_to_array(img)
             data = np.array([img])
-            #変換したデータをモデルに渡して予測する
+            
             result = model.predict(data)[0]
             predicted = result.argmax()
             confidence = result[predicted] * 100
             pred_answer = f"これは {classes[predicted]} です（信頼度: {confidence:.1f}%）"
 
-            return render_template("index.html",answer=pred_answer)
+            return render_template("index.html", answer=pred_answer, img_base64=img_base64)
 
-    return render_template("index.html",answer="")
+    return render_template("index.html", answer="", img_base64="")
 
 
 if __name__ == "__main__":
