@@ -6,6 +6,7 @@ ok_front/
 def_front/
 JUDGE/
 uploads/
+dataset/
 # AIの学習済みモデルの保存フォルダを除外
 results/
 *.h5
