@@ -8,6 +8,3 @@ JUDGE/
 uploads/
 dataset/
 # AIの学習済みモデルの保存フォルダを除外
-results/
-*.h5
-*.keras
