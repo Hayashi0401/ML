@@ -55,7 +55,22 @@ def upload_file():
             result = model.predict(data)[0]
             predicted = result.argmax()
             confidence = result[predicted] * 100
-            pred_answer = f"これは {classes[predicted]} です（信頼度: {confidence:.1f}%）"
+            
+            # --- ここから書き換え（判定フィルターの強化） ---
+            
+            # 1. そもそもAIの信頼度が低すぎる（80%未満）場合は一律ではじく
+            if confidence < 80.0:
+                pred_answer = "スマホではないか、または判別できない異物です"
+                
+            # 2. 「good（正常）」と判定されたが、信頼度が98%未満の場合
+            # （顔写真など、AIがなんとなく綺麗だからと勘違いした画像はここで弾きます）
+            elif classes[predicted] == "good" and confidence < 98.0:
+                pred_answer = "スマホではないか、または判別できない異物です（確信度が足りません）"
+                
+            # 3. 上記の条件をクリアした、自信のある正規の判定結果
+            else:
+                pred_answer = f"これは {classes[predicted]} です（信頼度: {confidence:.1f}%）"
+                
 
             return render_template("index.html", answer=pred_answer, img_base64=img_base64)
 
