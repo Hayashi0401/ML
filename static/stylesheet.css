@@ -106,6 +106,14 @@ button.camera-label:hover {
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
+/* Grad-CAM用の大きめモーダル */
+.modal-overlay:has(.gradcam-container) .modal-content {
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: left;
+}
+
 .modal-content h3 {
     margin-top: 0;
     margin-bottom: 15px;
@@ -376,6 +384,19 @@ h1 {
     box-shadow: 0 12px 30px rgba(23, 32, 51, 0.07);
 }
 
+.answer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.answer-content > div {
+    display: grid;
+    gap: 6px;
+    flex: 1;
+}
+
 .answer span {
     color: var(--muted);
     font-size: 13px;
@@ -385,6 +406,70 @@ h1 {
 .answer strong {
     font-size: 22px;
     line-height: 1.45;
+}
+
+.btn-gradcam {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #f8f9fa;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.btn-gradcam:hover {
+    background: #e9eff8;
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(23, 105, 224, 0.15);
+}
+
+/* Grad-CAMモーダル用スタイル */
+.gradcam-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    background: #f5f7fb;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    color: var(--text);
 }
 
 footer {
