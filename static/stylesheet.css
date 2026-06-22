@@ -22,9 +22,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background:
-        linear-gradient(180deg, rgba(23, 105, 224, 0.08), transparent 320px),
-        var(--bg);
+    background: transparent; 
     color: var(--text);
     font-family: "Segoe UI", "Yu Gothic", "Meiryo", sans-serif;
 }
@@ -541,6 +539,20 @@ footer {
 }
 
 @media (max-width: 760px) {
+    .site-header {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+    .container,
+    footer {
+        width: min(100% - 28px, 1120px);
+    }
+
+    h1 {
+        font-size: 23px;
+    }
 
     .upload-box {
         grid-template-columns: 1fr;
