@@ -281,233 +281,192 @@
         <p>Mobile Phone Defect Classification</p>
     </footer>
 
-    <script>
-
+<script>
+    // ===== テーマ切り替え機能 =====
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
     const themeText = document.getElementById('theme-text');
     const htmlElement = document.documentElement;
 
-
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
 
-
     setTheme(initialTheme);
 
     themeToggleBtn.addEventListener('click', () => {
-    const currentTheme = htmlElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
     });
 
     function setTheme(theme) {
-            htmlElement.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
+        htmlElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
 
-            // 表示テキストと現在の画面状態のあべこべを修正
-            if (theme === 'dark') {
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'ライトモードへ';
-            } else {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'ダークモードへ';
-            }
+        if (theme === 'dark') {
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'ライトモードへ';
+        } else {
+            themeIcon.textContent = '🌙';
+            themeText.textContent = 'ダークモードへ';
         }
+    }
 
-        const fileInput = document.getElementById('file-upload');
-        const fileName = document.getElementById('file-name');
-        const form = document.querySelector("form");
-        const errorMessage = document.getElementById("error-message");
-        const imagePreview = document.getElementById("image-preview");
-        const previewPlaceholder = document.getElementById("preview-placeholder");
+    // ===== 要素の取得 =====
+    const fileInput = document.getElementById('file-upload');
+    const fileName = document.getElementById('file-name');
+    const form = document.querySelector("form");
+    const errorMessage = document.getElementById("error-message");
+    const imagePreview = document.getElementById("image-preview");
+    const previewPlaceholder = document.getElementById("preview-placeholder");
 
-        // カメラ用要素
-        const startCameraBtn = document.getElementById('start-camera-btn');
-        const cameraModal = document.getElementById('camera-modal');
-        const video = document.getElementById('webcamera');
-        const shutterBtn = document.getElementById('shutter-btn');
-        const closeCameraBtn = document.getElementById('close-camera-btn');
-        const canvas = document.getElementById('capture-canvas');
+    // カメラ用要素
+    const startCameraBtn = document.getElementById('start-camera-btn');
+    const cameraModal = document.getElementById('camera-modal');
+    const video = document.getElementById('webcamera');
+    const shutterBtn = document.getElementById('shutter-btn');
+    const closeCameraBtn = document.getElementById('close-camera-btn');
+    const canvas = document.getElementById('capture-canvas');
 
-        let stream = null;
+    let stream = null;
 
-fileInput.addEventListener('change', function(){
-if(this.files.length > 0){
-const file = this.files[0];
-fileName.textContent = file.name;
+    // プレビューのリセット関数
+    function resetPreview() {
+        fileName.textContent = 'ファイル未選択';
+        imagePreview.removeAttribute("src");
+        imagePreview.style.display = "none";
+        previewPlaceholder.style.display = "grid";
+    }
 
-imagePreview.src = URL.createObjectURL(file);
-imagePreview.style.display = "block";
-previewPlaceholder.style.display = "none";
-}else{
-resetPreview();
-}
+    // ===== ① ファイル選択時の処理 =====
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const file = this.files[0];
+            imagePreview.src = URL.createObjectURL(file);
+            imagePreview.style.display = "block";
+            previewPlaceholder.style.display = "none";
 
-if (this.files.length === 1) {
-    fileName.textContent = this.files[0].name;
-} else {
-    fileName.textContent =
-        `${this.files.length}枚選択中`;
-}
+            if (this.files.length === 1) {
+                fileName.textContent = this.files[0].name;
+            } else {
+                fileName.textContent = `${this.files.length}枚選択中`;
+            }
+        } else {
+            resetPreview();
+        }
+    });
 
-function resetPreview() {
-fileName.textContent = 'ファイル未選択';
-imagePreview.removeAttribute("src");
-imagePreview.style.display = "none";
-previewPlaceholder.style.display = "grid";
-}
+    // ===== ② カメラ起動処理 =====
+    startCameraBtn.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment" }, // スマホなら背面、PCなら標準
+                audio: false
+            });
+            video.srcObject = stream;
+            cameraModal.style.display = 'flex';
+        } catch (err) {
+            alert("カメラの起動に失敗しました。許可されているか確認してください。");
+            console.error(err);
+        }
+    });
 
-startCameraBtn.addEventListener('click', async () => {
-try {
-// パソコンやスマホのカメラへのアクセスをリクエスト
-stream = await navigator.mediaDevices.getUserMedia({
-video: { facingMode: "environment" }, // スマホなら背面、PCなら標準カメラ
-audio: false
-});
-video.srcObject = stream;
-cameraModal.style.display = 'flex'; // モーダルを表示
-} catch (err) {
-alert("カメラの起動に失敗しました。許可されているか確認してください。");
-console.error(err);
-}
-});
+    // ===== ③ シャッターボタン（撮影） =====
+    shutterBtn.addEventListener('click', () => {
+        if (!stream) return;
 
-// ② シャッターボタンを押したとき（撮影）
-shutterBtn.addEventListener('click', () => {
-if (!stream) return;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
-// ビデオの解像度に合わせてキャンバスのサイズを設定
-canvas.width = video.videoWidth;
-canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-// キャンバスに現在のビデオ映像を描画（パシャリ）
-const ctx = canvas.getContext('2d');
-ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+            const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
 
-// キャンバスの画像をBlob（ファイルデータ）に変換
-canvas.toBlob((blob) => {
-// Python側に送るための「ファイルオブジェクト」を作成
-const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
 
-// DataTransferを使って、既存の fileInput に撮影したファイルを無理やりセットする
-const dataTransfer = new DataTransfer();
-dataTransfer.items.add(file);
+            fileName.textContent = file.name;
+            imagePreview.src = URL.createObjectURL(file);
+            imagePreview.style.display = "block";
+            previewPlaceholder.style.display = "none";
 
-fileInput.files = dataTransfer.files;
+            stopCamera();
+        }, 'image/jpeg');
+    });
 
-// 画面のプレビューを更新
-fileName.textContent = file.name;
-imagePreview.src = URL.createObjectURL(file);
-imagePreview.style.display = "block";
-previewPlaceholder.style.display = "none";
+    // ===== ④ カメラを閉じる処理 =====
+    closeCameraBtn.addEventListener('click', () => {
+        stopCamera();
+    });
 
-// カメラを止めてモーダルを閉じる
-stopCamera();
-}, 'image/jpeg');
-});
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        video.srcObject = null;
+        cameraModal.style.display = 'none';
+    }
 
-// ③ 閉じるボタンを押したとき
-closeCameraBtn.addEventListener('click', () => {
-stopCamera();
-});
+    // ===== ⑤ 送信時のバリデーション =====
+    form.addEventListener('submit', function(e) {
+        if (!fileInput.files || !fileInput.files.length) {
+            e.preventDefault();
+            errorMessage.textContent = 'ファイルを選択するか、カメラで撮影してください';
+        } else {
+            errorMessage.textContent = '';
+        }
+    });
 
-// カメラ停止処理
-function stopCamera() {
-if (stream) {
-stream.getTracks().forEach(track => track.stop());
-}
-video.srcObject = null;
-cameraModal.style.display = 'none';
-}
+    // ===== ⑥ Grad-CAM機能 =====
+    const gradcamBtn = document.getElementById('gradcam-btn');
+    const gradcamModal = document.getElementById('gradcam-modal');
+    const closeGradcamBtn = document.getElementById('close-gradcam-btn');
+    const gradcamImage = document.getElementById('gradcam-image');
+    const gradcamLoading = document.getElementById('gradcam-loading');
+    const gradcamError = document.getElementById('gradcam-error');
 
-// 送信時のバリデーション
-form.addEventListener('submit', function(e){
-if(!fileInput.files || !fileInput.files.length){
-e.preventDefault();
-errorMessage.textContent = 'ファイルを選択するか、カメラで撮影してください';
-}else{
-errorMessage.textContent = '';
-}
+    if (gradcamBtn) {
+        gradcamBtn.addEventListener('click', async () => {
+            gradcamModal.style.display = 'flex';
+            gradcamLoading.style.display = 'block';
+            gradcamError.style.display = 'none';
+            gradcamImage.style.display = 'none';
 
-// カメラを止めてモーダルを閉じる
-stopCamera();
-}, 'image/jpeg');
-});
+            try {
+                const response = await fetch('/gradcam', {
+                    method: 'POST'
+                });
 
-// ③ 閉じるボタンを押したとき
-closeCameraBtn.addEventListener('click', () => {
-stopCamera();
-});
+                if (!response.ok) {
+                    const error_data = await response.json();
+                    throw new Error(error_data.error || 'Grad-CAM計算に失敗しました');
+                }
 
-// カメラ停止処理
-function stopCamera() {
-if (stream) {
-stream.getTracks().forEach(track => track.stop());
-}
-video.srcObject = null;
-cameraModal.style.display = 'none';
-}
+                const data = await response.json();
+                gradcamImage.src = data.gradcam_image;
+                gradcamImage.style.display = 'block';
+            } catch (error) {
+                gradcamError.textContent = `エラー: ${error.message}`;
+                gradcamError.style.display = 'block';
+            } finally {
+                gradcamLoading.style.display = 'none';
+            }
+        });
 
-// 送信時のバリデーション
-form.addEventListener('submit', function (e) {
-if (!fileInput.files || !fileInput.files.length) {
-e.preventDefault();
-errorMessage.textContent = 'ファイルを選択するか、カメラで撮影してください';
-} else {
-errorMessage.textContent = '';
-}
-});
+        closeGradcamBtn.addEventListener('click', () => {
+            gradcamModal.style.display = 'none';
+        });
 
-// ===== Grad-CAM機能 =====
-const gradcamBtn = document.getElementById('gradcam-btn');
-const gradcamModal = document.getElementById('gradcam-modal');
-const closeGradcamBtn = document.getElementById('close-gradcam-btn');
-const gradcamImage = document.getElementById('gradcam-image');
-const gradcamLoading = document.getElementById('gradcam-loading');
-const gradcamError = document.getElementById('gradcam-error');
-
-if (gradcamBtn) {
-gradcamBtn.addEventListener('click', async () => {
-gradcamModal.style.display = 'flex';
-gradcamLoading.style.display = 'block';
-gradcamError.style.display = 'none';
-gradcamImage.style.display = 'none';
-
-try {
-const response = await fetch('/gradcam', {
-method: 'POST'
-});
-
-if (!response.ok) {
-const error_data = await response.json();
-throw new Error(error_data.error || 'Grad-CAM計算に失敗しました');
-}
-
-const data = await response.json();
-gradcamImage.src = data.gradcam_image;
-gradcamImage.style.display = 'block';
-} catch (error) {
-gradcamError.textContent = `エラー: ${error.message}`;
-gradcamError.style.display = 'block';
-} finally {
-gradcamLoading.style.display = 'none';
-}
-});
-
-closeGradcamBtn.addEventListener('click', () => {
-gradcamModal.style.display = 'none';
-});
-
-// モーダル外をクリックしたら閉じる
-gradcamModal.addEventListener('click', (e) => {
-if (e.target === gradcamModal) {
-gradcamModal.style.display = 'none';
-}
-});
-}
-
+        gradcamModal.addEventListener('click', (e) => {
+            if (e.target === gradcamModal) {
+                gradcamModal.style.display = 'none';
+            }
+        });
+    }
 </script>
 
 </body>

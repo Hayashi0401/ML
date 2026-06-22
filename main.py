@@ -60,22 +60,22 @@ def generate_gradcam(img_path, model, class_index, image_size=200):
     # 最後の畳み込み層を取得
     last_conv_layer_name = 'block5_conv3'
     
-    # Grad-CAMを計算するモデルを構築
+# Grad-CAMを計算するモデルを構築
     grad_model = Model(
         inputs=model.input,
-        outputs=[model.get_layer(last_conv_layer_name).output, model.output]
+        outputs=[model.get_layer(last_conv_layer_name).output, model.outputs[0]]
     )
     
-    # 勾配を計算
+# 勾配を計算
     with tf.GradientTape() as tape:
         conv_outputs, predictions = grad_model(img_array)
-        class_channel = predictions[:, class_index]
+        class_channel = predictions[0, class_index] # [:, から [0, に変更
     
     # 最後の畳み込み層に対する勾配を計算
     grads = tape.gradient(class_channel, conv_outputs)
     
     # 勾配の平均をとって、重みとする
-    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))    
     
     # Grad-CAMを計算
     conv_outputs = conv_outputs[0]
