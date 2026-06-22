@@ -312,9 +312,9 @@ h1 {
 }
 
 .file-area {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
     margin: 22px 0 18px;
 }
@@ -339,7 +339,8 @@ h1 {
 }
 
 .file-name {
-    min-width: 0;
+    flex: 1;
+    min-width: 180px;
     color: var(--muted);
     font-size: 14px;
     overflow: hidden;
@@ -480,21 +481,66 @@ footer {
     font-size: 13px;
 }
 
+.answer {
+    display: grid;
+    gap: 14px;
+    padding: 20px;
+    border-left: 5px solid var(--primary);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 0 12px 30px rgba(23, 32, 51, 0.07);
+}
+
+.answer h2 {
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.answer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fafbfc;
+}
+
+.answer-content:hover {
+    background: #f4f7fb;
+}
+
+.answer-content strong {
+    font-size: 18px;
+}
+
+.answer-content div {
+    line-height: 1.8;
+}
+
+.result-good {
+    border-left: 5px solid var(--good);
+}
+
+.result-oil {
+    border-left: 5px solid var(--oil);
+}
+
+.result-scratch {
+    border-left: 5px solid var(--scratch);
+}
+
+.result-stain {
+    border-left: 5px solid var(--stain);
+}
+
+.result-unknown {
+    border-left: 5px solid #64748b;
+}
+
 @media (max-width: 760px) {
-    .site-header {
-        width: min(100% - 28px, 1120px);
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .container,
-    footer {
-        width: min(100% - 28px, 1120px);
-    }
-
-    h1 {
-        font-size: 23px;
-    }
 
     .upload-box {
         grid-template-columns: 1fr;
@@ -502,10 +548,18 @@ footer {
     }
 
     .file-area {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .file-label {
+    .file-label,
+    .camera-label,
+    .btn {
         width: 100%;
+    }
+
+    .answer-content {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
