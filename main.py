@@ -141,8 +141,9 @@ def upload_file():
                 filename = secure_filename(file.filename)
 
                 # AI用画像
+                file_bytes = io.BytesIO(file.read())
                 img = image.load_img(
-                    file,
+                    file_bytes,
                     target_size=(image_size, image_size)
                 )
 
