@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -8,17 +8,120 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='stylesheet.css') }}">
+    <style>
+        /* テーマ変数の定義 */
+        :root[data-theme="light"] {
+            --bg-color: #f5f7fb;         
+            --panel-bg: #ffffff;         
+            --text-color: #172033;       
+            --text-muted: #667085;       
+            --border-color: #d8dee9;     
+            --header-bg: #ffffff !important; 
+            --header-text: #172033;      
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #1a202c;         
+            --panel-bg: #2d3748;         
+            --text-color: #f5f7fb;      
+            --text-muted: #cbd5e1;       
+            --border-color: #4a5568;    
+            --header-bg: #2d3748 !important; 
+            --header-text: #ffffff;      
+        }
+
+        
+        html, body {
+            background: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        /* ヘッダー全体を画面横幅100%に広げて、背景色を適用する設定 */
+        .site-header {
+            width: 100% !important;
+            max-width: 100% !important;
+            background-color: var(--header-bg) !important;
+            color: var(--header-text) !important;
+            padding: 24px 40px !important; /* 左右に十分な余白を設定 */
+            margin: 0 0 20px 0 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        /* ヘッダーの中のテキスト色を強制連動 */
+        .site-header h1,
+        .site-header p.eyebrow {
+            color: var(--header-text) !important;
+        }
+
+        /* テーマ切り替えボタン（「ダークモードへ」など）をハッキリ見せる修正 */
+        .theme-toggle-btn {
+            background-color: transparent !important;
+            border: 2px solid var(--header-text) !important; /* 外枠の線を見えやすく */
+            color: var(--header-text) !important;            /* 文字色をヘッダーと連動 */
+            padding: 8px 16px !important;
+            border-radius: 20px !important;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .theme-toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            opacity: 0.9;
+        }
+
+        /* 中央のメインパネル、アップロード箱、各種カードの設定 */
+        .panel,
+        .upload-box,
+        .modal-content,
+        .class-chip,
+        .answer,
+        .btn-gradcam {
+            background-color: var(--panel-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* その他テキストパーツの文字色を一括連動 */
+        h2, h3, h4, span, strong, .file-name {
+            color: var(--text-color) !important;
+        }
+        p, .intro p, .upload-box p, footer p {
+            color: var(--text-muted) !important;
+        }
+
+        /* バッジ（VGG16 / 4 classes）のスタイル調整 */
+        .model-badge {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--header-text) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* モーダル表示の背景オーバーレイ */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6) !important;
+        }
+    </style>
 </head>
 
 <body>
 
     <header class="site-header">
         <div>
-            <p class="eyebrow">Supervised Learning Inspection</p>
             <h1>スマホ表面欠陥分類システム</h1>
         </div>
-        <div class="model-badge">
-            VGG16 / 4 classes
+        <div style="display: flex; align-items: center; gap: 15px; margin-right: 20px;">
+            <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="テーマ切り替え">
+                <span id="theme-icon">🌙</span> <span id="theme-text">ダークモードへ</span>
+            </button>
+            <div class="model-badge">
+                VGG16 / 4 classes
+            </div>
         </div>
     </header>
 
@@ -141,7 +244,40 @@
         <p>Mobile Phone Defect Classification</p>
     </footer>
 
-<script>
+    <script>
+
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    const htmlElement = document.documentElement;
+
+
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+
+    setTheme(initialTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    });
+
+    function setTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+
+            // 表示テキストと現在の画面状態のあべこべを修正
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'ライトモードへ';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'ダークモードへ';
+            }
+        }
 
 const fileInput = document.getElementById('file-upload');
 const fileName = document.getElementById('file-name');
@@ -161,97 +297,97 @@ const canvas = document.getElementById('capture-canvas');
 let stream = null;
 
 fileInput.addEventListener('change', function(){
-    if(this.files.length > 0){
-        const file = this.files[0];
-        fileName.textContent = file.name;
+if(this.files.length > 0){
+const file = this.files[0];
+fileName.textContent = file.name;
 
-        imagePreview.src = URL.createObjectURL(file);
-        imagePreview.style.display = "block";
-        previewPlaceholder.style.display = "none";
-    }else{
-        resetPreview();
-    }
+imagePreview.src = URL.createObjectURL(file);
+imagePreview.style.display = "block";
+previewPlaceholder.style.display = "none";
+}else{
+resetPreview();
+}
 
 });
 
 function resetPreview() {
-    fileName.textContent = 'ファイル未選択';
-    imagePreview.removeAttribute("src");
-    imagePreview.style.display = "none";
-    previewPlaceholder.style.display = "grid";
+fileName.textContent = 'ファイル未選択';
+imagePreview.removeAttribute("src");
+imagePreview.style.display = "none";
+previewPlaceholder.style.display = "grid";
 }
 
 startCameraBtn.addEventListener('click', async () => {
-    try {
-        // パソコンやスマホのカメラへのアクセスをリクエスト
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" }, // スマホなら背面、PCなら標準カメラ
-            audio: false
-        });
-        video.srcObject = stream;
-        cameraModal.style.display = 'flex'; // モーダルを表示
-    } catch (err) {
-        alert("カメラの起動に失敗しました。許可されているか確認してください。");
-        console.error(err);
-    }
+try {
+// パソコンやスマホのカメラへのアクセスをリクエスト
+stream = await navigator.mediaDevices.getUserMedia({
+video: { facingMode: "environment" }, // スマホなら背面、PCなら標準カメラ
+audio: false
+});
+video.srcObject = stream;
+cameraModal.style.display = 'flex'; // モーダルを表示
+} catch (err) {
+alert("カメラの起動に失敗しました。許可されているか確認してください。");
+console.error(err);
+}
 });
 
 // ② シャッターボタンを押したとき（撮影）
 shutterBtn.addEventListener('click', () => {
-    if (!stream) return;
+if (!stream) return;
 
-    // ビデオの解像度に合わせてキャンバスのサイズを設定
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    // キャンバスに現在のビデオ映像を描画（パシャリ）
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+// ビデオの解像度に合わせてキャンバスのサイズを設定
+canvas.width = video.videoWidth;
+canvas.height = video.videoHeight;
 
-    // キャンバスの画像をBlob（ファイルデータ）に変換
-    canvas.toBlob((blob) => {
-        // Python側に送るための「ファイルオブジェクト」を作成
-        const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
-        
-        // DataTransferを使って、既存の fileInput に撮影したファイルを無理やりセットする
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
+// キャンバスに現在のビデオ映像を描画（パシャリ）
+const ctx = canvas.getContext('2d');
+ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        fileInput.files = dataTransfer.files;
+// キャンバスの画像をBlob（ファイルデータ）に変換
+canvas.toBlob((blob) => {
+// Python側に送るための「ファイルオブジェクト」を作成
+const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
 
-        // 画面のプレビューを更新
-        fileName.textContent = file.name;
-        imagePreview.src = URL.createObjectURL(file);
-        imagePreview.style.display = "block";
-        previewPlaceholder.style.display = "none";
+// DataTransferを使って、既存の fileInput に撮影したファイルを無理やりセットする
+const dataTransfer = new DataTransfer();
+dataTransfer.items.add(file);
 
-        // カメラを止めてモーダルを閉じる
-        stopCamera();
-    }, 'image/jpeg');
+fileInput.files = dataTransfer.files;
+
+// 画面のプレビューを更新
+fileName.textContent = file.name;
+imagePreview.src = URL.createObjectURL(file);
+imagePreview.style.display = "block";
+previewPlaceholder.style.display = "none";
+
+// カメラを止めてモーダルを閉じる
+stopCamera();
+}, 'image/jpeg');
 });
 
 // ③ 閉じるボタンを押したとき
 closeCameraBtn.addEventListener('click', () => {
-    stopCamera();
+stopCamera();
 });
 
 // カメラ停止処理
 function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-    }
-    video.srcObject = null;
-    cameraModal.style.display = 'none';
+if (stream) {
+stream.getTracks().forEach(track => track.stop());
+}
+video.srcObject = null;
+cameraModal.style.display = 'none';
 }
 
 // 送信時のバリデーション
 form.addEventListener('submit', function(e){
-    if(!fileInput.files || !fileInput.files.length){
-        e.preventDefault();
-        errorMessage.textContent = 'ファイルを選択するか、カメラで撮影してください';
-    }else{
-        errorMessage.textContent = '';
-    }
+if(!fileInput.files || !fileInput.files.length){
+e.preventDefault();
+errorMessage.textContent = 'ファイルを選択するか、カメラで撮影してください';
+}else{
+errorMessage.textContent = '';
+}
 });
 
 // ===== Grad-CAM機能 =====
