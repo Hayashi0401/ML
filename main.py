@@ -16,9 +16,16 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 classes = ["good", "oil", "scratch", "stain"]
+ALL_CLASSES = classes + ["unknown"]
 image_size = 200
 
 UPLOAD_FOLDER = "uploads"
+for cls in ALL_CLASSES:
+    os.makedirs(
+        os.path.join(UPLOAD_FOLDER, cls),
+        exist_ok=True
+    )
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -109,57 +116,95 @@ last_predicted_class = None
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     global last_uploaded_image, last_predicted_class
-    
+
     if request.method == 'POST':
+
         if 'file' not in request.files:
             flash('ファイルがありません')
             return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
+
+        files = request.files.getlist('file')
+
+        if len(files) == 0:
             flash('ファイルがありません')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
 
-            with open(filepath, "rb") as img_file:
-                encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
-            ext = filename.rsplit('.', 1)[1].lower()
-            mime_type = f"image/{ext}" if ext != 'jpg' else "image/jpeg"
-            img_base64 = f"data:{mime_type};base64,{encoded_string}"
+        results = []
 
-            img = image.load_img(filepath, target_size=(image_size, image_size))
-            img = image.img_to_array(img)
-            data = np.array([img])
-            
-            result = model.predict(data)[0]
-            predicted = result.argmax()
-            confidence = result[predicted] * 100
-            
-            # --- ここから書き換え（判定フィルターの強化） ---
-            
-            # 1. そもそもAIの信頼度が低すぎる（80%未満）場合は一律ではじく
-            if confidence < 80.0:
-                pred_answer = "スマホではないか、または判別できない異物です"
-                
-            # 2. 「good（正常）」と判定されたが、信頼度が98%未満の場合
-            # （顔写真など、AIがなんとなく綺麗だからと勘違いした画像はここで弾きます）
-            elif classes[predicted] == "good" and confidence < 98.0:
-                pred_answer = "スマホではないか、または判別できない異物です（確信度が足りません）"
-                
-            # 3. 上記の条件をクリアした、自信のある正規の判定結果
-            else:
-                pred_answer = f"これは {classes[predicted]} です（信頼度: {confidence:.1f}%）"
-                
+        for file in files:
 
-            # 後でGrad-CAM計算用に保存
-            last_uploaded_image = filepath
-            last_predicted_class = predicted
+            if file.filename == '':
+                continue
 
-            return render_template("index.html", answer=pred_answer, img_base64=img_base64)
+            if file and allowed_file(file.filename):
 
-    return render_template("index.html", answer="", img_base64="")
+                filename = secure_filename(file.filename)
+
+                # AI用画像
+                img = image.load_img(
+                    file,
+                    target_size=(image_size, image_size)
+                )
+
+                img = image.img_to_array(img)
+                data = np.array([img])
+
+                result = model.predict(data, verbose=0)[0]
+
+                predicted = result.argmax()
+                confidence = result[predicted] * 100
+
+                pred_class = classes[predicted]
+
+                # ---------- フィルター ----------
+
+                if confidence < 80:
+                    pred_answer = "Unknown"
+
+                elif pred_class == "good" and confidence < 98:
+                    pred_answer = "Unknown"
+
+                else:
+                    pred_answer = pred_class
+
+                # ---------- 保存 ----------
+
+                save_dir = os.path.join(
+                    UPLOAD_FOLDER,
+                    pred_answer
+                    if pred_answer in classes
+                    else "unknown"
+                )
+
+                os.makedirs(save_dir, exist_ok=True)
+
+                save_path = os.path.join(
+                    save_dir,
+                    filename
+                )
+
+                file.seek(0)
+                file.save(save_path)
+
+                # Grad-CAM用（最後の1枚）
+                last_uploaded_image = save_path
+                last_predicted_class = predicted
+
+                results.append({
+                    "filename": filename,
+                    "class": pred_answer,
+                    "confidence": round(confidence, 1)
+                })
+
+        return render_template(
+            "index.html",
+            results=results
+        )
+
+    return render_template(
+        "index.html",
+        results=[]
+    )
 
 
 @app.route('/gradcam', methods=['POST'])
