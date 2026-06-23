@@ -8,3 +8,5 @@ JUDGE/
 uploads/
 dataset/
 # AIの学習済みモデルの保存フォルダを除外
+__pycache__/
+*.pyc
