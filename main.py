@@ -213,7 +213,7 @@ def upload_file():
                 results.append({
                     "filename": filename,
                     "class": pred_answer,
-                    "confidence": round(confidence, 1)
+                    "confidence": float(round(confidence, 1))
                 })
 
         return render_template(
