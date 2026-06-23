@@ -4,12 +4,19 @@
     box-sizing: border-box;
 }
 
-:root {
-    --bg: #f5f7fb;
-    --surface: #ffffff;
-    --text: #172033;
-    --muted: #667085;
-    --line: #d8dee9;
+/* ==========================================================================
+   テーマ変数の定義（ライトモード / ダークモード共通管理）
+   ========================================================================== */
+:root, html[data-theme="light"] {
+    --bg-color: #f5f7fb;         
+    --panel-bg: #ffffff;         
+    --text-color: #172033;       
+    --text-muted: #667085;       
+    --border-color: #d8dee9;     
+    --header-bg: #ffffff; 
+    --header-text: #172033;      
+
+    /* 元の共通変数 */
     --primary: #1769e0;
     --primary-dark: #0f4fb0;
     --good: #138a5b;
@@ -18,560 +25,580 @@
     --stain: #6d3fc8;
 }
 
+html[data-theme="dark"] {
+    --bg-color: #1a202c;         
+    --panel-bg: #2d3748;         
+    --text-color: #f5f7fb;      
+    --text-muted: #cbd5e1;       
+    --border-color: #4a5568;    
+    --header-bg: #2d3748; 
+    --header-text: #ffffff;      
+}
+
+/* ==========================================================================
+   ベーススタイル
+   ========================================================================== */
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: transparent; 
-    color: var(--text);
+    background: var(--bg-color) !important;
+    color: var(--text-color) !important;
     font-family: "Segoe UI", "Yu Gothic", "Meiryo", sans-serif;
+    transition: background 0.2s, color 0.2s;
 }
 
+/* ==========================================================================
+   ヘッダー（site-header）
+   ========================================================================== */
 .site-header {
-    width: min(1120px, calc(100% - 40px));
-    margin: 0 auto;
-    padding: 28px 0 18px;
+    width: 100% !important;
+    max-width: 100% !important;
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    padding: 24px 40px !important;
+    margin: 0 0 20px 0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    transition: background-color 0.2s, color 0.2s;
 }
-.camera-label {
+
+.site-header h1 {
+    font-size: 24px;
+    color: var(--header-text) !important;
+}
+
+/* テーマ切り替えボタン */
+.theme-toggle-btn {
+    background-color: transparent !important;
+    border: 2px solid var(--header-text) !important;
+    color: var(--header-text) !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    background-color: #f1f5f9; /* 落ち着いたグレー（お好みの色に調整してください） */
-    color: #334155;
-    padding: 10px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-    margin-left: 8px; /* 「画像を選択」ボタンとの隙間 */
-    vertical-align: middle;
+    gap: 6px;
+    transition: all 0.2s;
 }
 
-.camera-label:hover {
-    background-color: #e2e8f0;
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    opacity: 0.9;
 }
 
-/* カメラアイコンの微調整 */
-.camera-icon {
-    display: block;
-}
-
-button.camera-label {
-    border: none;
-    outline: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f1f5f9;
-    color: #334155;
-    padding: 10px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-left: 8px;
-    vertical-align: middle;
-    transition: background-color 0.2s;
-}
-button.camera-label:hover {
-    background-color: #e2e8f0;
-}
-
-/* 背景を暗くするオーバーレイ */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-/* モーダルコンテンツの箱 */
-.modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-/* Grad-CAM用の大きめモーダル */
-.modal-overlay:has(.gradcam-container) .modal-content {
-    max-width: 700px;
-    max-height: 90vh;
-    overflow-y: auto;
-    text-align: left;
-}
-
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #1e293b;
-}
-
-/* ビデオ全体の枠 */
-.video-container {
-    background-color: #000;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    line-height: 0;
-}
-
-/* ボタンエリア */
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-}
-
-.btn-shutter {
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-shutter:hover { background-color: #1d4ed8; }
-
-.btn-close {
-    background-color: #64748b;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.btn-close:hover { background-color: #475569; }
-
-
-/* file-areaの中で横並びにするための調整（もし崩れる場合） */
-.file-area {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.eyebrow {
-    color: var(--primary);
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-h1 {
-    margin-top: 4px;
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1.25;
-}
-
+/* モデルバッジ */
 .model-badge {
-    flex: 0 0 auto;
-    padding: 8px 12px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.78);
-    color: var(--muted);
+    padding: 6px 14px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: bold;
+    border-radius: 30px;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--header-text) !important;
+    border: 1px solid var(--border-color) !important;
 }
 
+/* ==========================================================================
+   メインレイアウト・コンテナ
+   ========================================================================== */
 .container {
-    flex: 1;
     width: min(1120px, calc(100% - 40px));
     margin: 0 auto;
-    padding: 22px 0 40px;
+    flex: 1;
+}
+
+/* テーマ連動コンポーネント一括設定 */
+.panel,
+.upload-box,
+.modal-content,
+.class-chip,
+.answer,
+.btn-gradcam,
+.category-tile {
+    background-color: var(--panel-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
 }
 
 .panel {
-    display: grid;
-    gap: 22px;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 40px;
 }
 
+/* テキストカラー連動 */
+h2, h3, h4, span, strong, .file-name {
+    color: var(--text-color) !important;
+}
+p, .intro p, .upload-box p, footer p {
+    color: var(--text-muted) !important;
+}
+
+/* ==========================================================================
+   イントロ・クラスリスト
+   ========================================================================== */
 .intro {
-    padding-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    margin-bottom: 24px;
 }
-
 .intro h2 {
-    font-size: 22px;
-    line-height: 1.4;
-}
-
-.intro p {
-    max-width: 760px;
-    margin-top: 8px;
-    color: var(--muted);
-    line-height: 1.8;
+    font-size: 24px;
+    margin-bottom: 8px;
 }
 
 .class-list {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    margin-bottom: 30px;
 }
-
 .class-chip {
-    min-width: 92px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: var(--surface);
-    border: 1px solid var(--line);
+    padding: 6px 14px;
     font-size: 14px;
-    font-weight: 800;
-    text-align: center;
+    font-weight: bold;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
+.class-chip.good { border-left: 4px solid var(--good); }
+.class-chip.oil { border-left: 4px solid var(--oil); }
+.class-chip.scratch { border-left: 4px solid var(--scratch); }
+.class-chip.stain { border-left: 4px solid var(--stain); }
 
-.class-chip.good {
-    color: var(--good);
-}
-
-.class-chip.oil {
-    color: var(--oil);
-}
-
-.class-chip.scratch {
-    color: var(--scratch);
-}
-
-.class-chip.stain {
-    color: var(--stain);
-}
-
+/* ==========================================================================
+   アップロード・カメラエリア
+   ========================================================================== */
 .upload-box {
-    display: grid;
-    grid-template-columns: minmax(280px, 420px) 1fr;
-    align-items: center;
-    gap: 28px;
-    padding: 28px;
-    border: 1px solid var(--line);
+    display: flex;
+    gap: 30px;
+    padding: 24px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: var(--surface);
-    box-shadow: 0 18px 48px rgba(23, 32, 51, 0.08);
+    margin-bottom: 30px;
 }
 
 .preview-frame {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    border: 1px dashed #aab3c2;
-    border-radius: 8px;
-    background: #eef2f7;
+    width: 240px;
+    height: 240px;
+    border-radius: 6px;
     overflow: hidden;
+    background: #172033;
+    flex-shrink: 0;
 }
-
 .preview-placeholder {
     width: 100%;
     height: 100%;
     display: grid;
     place-items: center;
-    color: var(--muted);
-    font-weight: 700;
+    color: #667085;
+    font-size: 14px;
 }
-
 .image-preview {
-    display: none;
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: #101828;
 }
 
 .upload-content {
-    display: grid;
-    align-content: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-
-.upload-box h3 {
-    font-size: 24px;
-    line-height: 1.35;
+.upload-content h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
 }
-
-.upload-box p {
-    margin-top: 8px;
-    color: var(--muted);
-    line-height: 1.7;
-}
-
-.file_choose {
-    display: none;
+.upload-content p {
+    font-size: 14px;
+    margin-bottom: 20px;
 }
 
 .file-area {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     gap: 12px;
-    margin: 22px 0 18px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.file_choose {
+    display: none;
+}
+.file-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--primary);
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.file-label:hover {
+    background: var(--primary-dark);
 }
 
-.file-label {
-    min-height: 44px;
+.camera-label {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0 18px;
-    border-radius: 8px;
-    background: #e9eff8;
-    color: var(--primary-dark);
+    width: 44px;
+    height: 44px;
+    background: #e4e7ec;
+    color: #344054;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: 800;
-    transition: background 0.2s, transform 0.2s;
+    border: none;
+    transition: background 0.2s;
 }
-
-.file-label:hover {
-    background: #dbe8fb;
-    transform: translateY(-1px);
+.camera-label:hover {
+    background: #d0d5dd;
+}
+.camera-icon {
+    width: 20px;
+    height: 20px;
 }
 
 .file-name {
-    flex: 1;
-    min-width: 180px;
-    color: var(--muted);
     font-size: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
+/* ボタン */
 .btn {
+    display: inline-block;
     width: 100%;
-    min-height: 48px;
-    border: none;
-    border-radius: 8px;
-    background: var(--primary);
-    color: white;
+    max-width: 200px;
+    padding: 12px 24px;
+    background: #172033;
+    color: #ffffff;
     font-size: 16px;
-    font-weight: 800;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    transition: opacity 0.2s;
+    text-align: center;
 }
-
 .btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 12px 22px rgba(23, 105, 224, 0.22);
+    opacity: 0.9;
 }
 
 .error-message {
-    margin-top: 10px;
-    min-height: 20px;
     color: var(--scratch);
     font-size: 14px;
-    font-weight: 700;
+    margin-top: 10px;
+    font-weight: bold;
 }
 
+/* ==========================================================================
+   ダッシュボード＆カテゴリタイル（判定結果）
+   ========================================================================== */
 .answer {
-    display: grid;
-    gap: 6px;
-    padding: 18px 20px;
-    border-left: 5px solid var(--primary);
+    margin-top: 40px;
+    padding: 24px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: var(--surface);
-    box-shadow: 0 12px 30px rgba(23, 32, 51, 0.07);
 }
 
-.answer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.answer h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
 }
 
-.answer-content > div {
-    display: grid;
-    gap: 6px;
+.category-tile {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.tile-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 6px;
+}
+.tile-icon {
+    font-size: 18px;
+}
+.tile-header h3 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.tile-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     flex: 1;
 }
 
-.answer span {
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 800;
+/* ハイライト状態のスタイル（直近結果あり） */
+.category-tile.highlight-active {
+    box-shadow: 0 0 12px rgba(23, 105, 224, 0.3);
+    transform: translateY(-2px);
 }
+#tile-good.highlight-active { border: 2px solid var(--good); }
+#tile-oil.highlight-active { border: 2px solid var(--oil); }
+#tile-scratch.highlight-active { border: 2px solid var(--scratch); }
+#tile-stain.highlight-active { border: 2px solid var(--stain); }
+#tile-unknown.highlight-active { border: 2px solid #64748b; }
 
-.answer strong {
-    font-size: 22px;
-    line-height: 1.45;
+/* 直近の判定結果カード */
+.current-pred-card {
+    background: rgba(23, 105, 224, 0.05);
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+    border: 1px dashed var(--primary);
 }
-
-.btn-gradcam {
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: #f8f9fa;
-    color: var(--text);
+.pred-file {
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 2px;
+}
+.pred-conf strong {
+    color: var(--primary) !important;
     font-size: 14px;
-    font-weight: 700;
+}
+
+/* 履歴ボックス */
+.history-box {
+    margin-top: auto;
+    background: rgba(0, 0, 0, 0.02);
+    padding: 6px;
+    border-radius: 4px;
+}
+html[data-theme=\"dark\"] .history-box {
+    background: rgba(255, 255, 255, 0.02);
+}
+.history-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 4px;
+}
+.history-list {
+    list-style: none;
+    max-height: 90px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+html[data-theme=\"dark\"] .history-item {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.history-item:last-child {
+    border-bottom: none;
+}
+.history-item .file-name {
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+/* Grad-CAM分析ボタン一覧 */
+.btn-mini-gradcam, .btn-current-gradcam {
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: bold;
+    border: 1px solid var(--primary);
+    background: transparent;
+    color: var(--primary) !important;
+    border-radius: 4px;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
+}
+.btn-mini-gradcam:hover, .btn-current-gradcam:hover {
+    background: var(--primary);
+    color: #ffffff !important;
+}
+.btn-current-gradcam {
+    width: 100%;
+    padding: 5px;
+    font-size: 11px;
+    text-align: center;
+    background: var(--panel-bg);
+    margin-top: 6px;
 }
 
-.btn-gradcam:hover {
-    background: #e9eff8;
-    border-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(23, 105, 224, 0.15);
+/* メッセージ類 */
+.empty-msg, .loading-msg, .error-msg {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 8px 4px;
+    width: 100%;
 }
+.error-msg { color: var(--scratch); }
 
-/* Grad-CAMモーダル用スタイル */
-.gradcam-container {
+/* ==========================================================================
+   モーダル・オーバーレイ（カメラ＆Grad-CAM共通）
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6) !important;
     display: flex;
-    justify-content: center;
     align-items: center;
-    min-height: 300px;
-    background: #f5f7fb;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-content {
+    width: auto;
+    max-width: calc(100vw - 40px);
+    max-height: calc(100vh - 40px);
+    padding: 24px;
     border-radius: 8px;
-    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    position: relative;
+}
+.modal-content h3 {
+    margin-bottom: 16px;
 }
 
+/* カメラ用 */
+.video-container {
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 20px;
+}
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.btn-shutter {
+    padding: 10px 20px;
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-close {
+    padding: 10px 20px;
+    background: #64748b;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Grad-CAM用（アップロードプレビューと同じ表示に揃える） */
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 12px;
 }
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 18px;
-    color: var(--text);
-}
-
+.modal-header h3 { margin: 0; }
 .close-btn {
-    background: none;
+    background: transparent;
     border: none;
-    font-size: 24px;
-    color: var(--muted);
+    font-size: 28px;
     cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
+    color: var(--text-color);
+}
+.gradcam-container {
+    width: 240px;
+    height: 240px;
+    margin: 20px auto;
+    border-radius: 6px; /* 角丸を統一 */
+    overflow: hidden;
+    background: #172033 !important; /* 背景色をアップロード枠の濃い紺色と統一 */
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-.close-btn:hover {
-    color: var(--text);
+#gradcam-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important; /* 縦横比を維持したまま枠内に収める */
+    display: block;
 }
 
+/* ==========================================================================
+   フッター
+   ========================================================================== */
 footer {
-    width: min(1120px, calc(100% - 40px));
-    margin: 0 auto;
-    padding: 20px 0 26px;
-    color: var(--muted);
-    font-size: 13px;
+    padding: 20px 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    margin-top: 40px;
+}
+footer p {
+    font-size: 14px;
 }
 
-.answer {
-    display: grid;
-    gap: 14px;
-    padding: 20px;
-    border-left: 5px solid var(--primary);
-    border-radius: 8px;
-    background: var(--surface);
-    box-shadow: 0 12px 30px rgba(23, 32, 51, 0.07);
-}
-
-.answer h2 {
-    margin-bottom: 10px;
-    font-size: 22px;
-}
-
-.answer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: #fafbfc;
-}
-
-.answer-content:hover {
-    background: #f4f7fb;
-}
-
-.answer-content strong {
-    font-size: 18px;
-}
-
-.answer-content div {
-    line-height: 1.8;
-}
-
-.result-good {
-    border-left: 5px solid var(--good);
-}
-
-.result-oil {
-    border-left: 5px solid var(--oil);
-}
-
-.result-scratch {
-    border-left: 5px solid var(--scratch);
-}
-
-.result-stain {
-    border-left: 5px solid var(--stain);
-}
-
-.result-unknown {
-    border-left: 5px solid #64748b;
-}
-
+/* ==========================================================================
+   レスポンシブ (スマートフォン対応)
+   ========================================================================== */
 @media (max-width: 760px) {
     .site-header {
-    background-color: var(--header-bg) !important;
-    color: var(--header-text) !important;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-    .container,
-    footer {
-        width: min(100% - 28px, 1120px);
+        padding: 16px 20px !important;
     }
-
-    h1 {
-        font-size: 23px;
+    .site-header h1 {
+        font-size: 18px;
     }
-
+    .theme-toggle-btn {
+        padding: 6px 12px !important;
+        font-size: 0.8rem;
+    }
+    .intro {
+        flex-direction: column;
+        gap: 16px;
+    }
     .upload-box {
-        grid-template-columns: 1fr;
-        padding: 18px;
-    }
-
-    .file-area {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
     }
-
-    .file-label,
-    .camera-label,
-    .btn {
+    .preview-frame {
         width: 100%;
+        max-width: 280px;
+        height: 200px;
     }
-
-    .answer-content {
-        flex-direction: column;
-        align-items: flex-start;
+    .btn {
+        max-width: 100%;
+    }
+    .gradcam-container {
+        height: 280px;       /* スマホ画面用にコンテナの高さを少しコンパクトに */
     }
 }
