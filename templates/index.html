@@ -6,107 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Defect Classifier</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='stylesheet.css') }}">
-    <style>
-        /* テーマ変数の定義 */
-        :root[data-theme="light"] {
-            --bg-color: #f5f7fb;         
-            --panel-bg: #ffffff;         
-            --text-color: #172033;       
-            --text-muted: #667085;       
-            --border-color: #d8dee9;     
-            --header-bg: #ffffff !important; 
-            --header-text: #172033;      
-        }
-
-        :root[data-theme="dark"] {
-            --bg-color: #1a202c;         
-            --panel-bg: #2d3748;         
-            --text-color: #f5f7fb;      
-            --text-muted: #cbd5e1;       
-            --border-color: #4a5568;    
-            --header-bg: #2d3748 !important; 
-            --header-text: #ffffff;      
-        }
-
-        
-        html, body {
-            background: var(--bg-color) !important;
-            color: var(--text-color) !important;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        /* ヘッダー全体を画面横幅100%に広げて、背景色を適用する設定 */
-        .site-header {
-            width: 100% !important;
-            max-width: 100% !important;
-            background-color: var(--header-bg) !important;
-            color: var(--header-text) !important;
-            padding: 24px 40px !important; /* 左右に十分な余白を設定 */
-            margin: 0 0 20px 0 !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        /* ヘッダーの中のテキスト色を強制連動 */
-        .site-header h1,
-        .site-header p.eyebrow {
-            color: var(--header-text) !important;
-        }
-
-        /* テーマ切り替えボタン（「ダークモードへ」など）をハッキリ見せる修正 */
-        .theme-toggle-btn {
-            background-color: transparent !important;
-            border: 2px solid var(--header-text) !important; /* 外枠の線を見えやすく */
-            color: var(--header-text) !important;            /* 文字色をヘッダーと連動 */
-            padding: 8px 16px !important;
-            border-radius: 20px !important;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        .theme-toggle-btn:hover {
-            background-color: rgba(255, 255, 255, 0.15) !important;
-            opacity: 0.9;
-        }
-
-        /* 中央のメインパネル、アップロード箱、各種カードの設定 */
-        .panel,
-        .upload-box,
-        .modal-content,
-        .class-chip,
-        .answer,
-        .btn-gradcam {
-            background-color: var(--panel-bg) !important;
-            color: var(--text-color) !important;
-            border-color: var(--border-color) !important;
-        }
-
-        /* その他テキストパーツの文字色を一括連動 */
-        h2, h3, h4, span, strong, .file-name {
-            color: var(--text-color) !important;
-        }
-        p, .intro p, .upload-box p, footer p {
-            color: var(--text-muted) !important;
-        }
-
-        /* バッジ（VGG16 / 4 classes）のスタイル調整 */
-        .model-badge {
-            background-color: rgba(255, 255, 255, 0.1) !important;
-            color: var(--header-text) !important;
-            border-color: var(--border-color) !important;
-        }
-
-        /* モーダル表示の背景オーバーレイ */
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.6) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
 </head>
 
 <body>
@@ -149,35 +49,25 @@
             <div class="upload-box">
 
                 <div class="preview-frame">
-                    <div id="preview-placeholder" class="preview-placeholder" {% if img_base64 %}style="display: none;"
-                        {% endif %}>
+                    <div id="preview-placeholder" class="preview-placeholder" {% if img_base64 %}style="display: none;" {% endif %}>
                         画像プレビュー
                     </div>
-                    <img id="image-preview" class="image-preview" alt="選択した検査画像" {% if img_base64 %}
-                        src="{{ img_base64 }}" style="display: block;" {% else %} style="display: none;" {% endif %}>
+                    <img id="image-preview" class="image-preview" alt="選択した検査画像" {% if img_base64 %} src="{{ img_base64 }}" style="display: block;" {% else %} style="display: none;" {% endif %}>
                 </div>
 
                 <div class="upload-content">
                     <h3>検査画像を選択</h3>
-
-                    <p>
-                        JPG / PNG / JPEG に対応。スマホの場合はカメラ撮影も使えます。
-                    </p>
+                    <p>JPG / PNG / JPEG に対応。スマホの場合はカメラ撮影も使えます。</p>
 
                     <form method="POST" enctype="multipart/form-data">
 
                         <div class="file-area">
-                            <input id="file-upload" class="file_choose" type="file" name="file" multiple
-                                accept="image/*">
+                            <input id="file-upload" class="file_choose" type="file" name="file" multiple accept="image/*">
                             <label for="file-upload" class="file-label">画像を選択</label>
 
                             <button type="button" id="start-camera-btn" class="camera-label" title="カメラで撮影">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="camera-icon">
-                                    <path
-                                        d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
-                                    </path>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon">
+                                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
                                     <circle cx="12" cy="13" r="3"></circle>
                                 </svg>
                             </button>
@@ -199,10 +89,7 @@
                             </div>
                         </div>
 
-                        <button class="btn" type="submit">
-                            判定開始
-                        </button>
-
+                        <button class="btn" type="submit">判定開始</button>
                         <div id="error-message" class="error-message"></div>
 
                     </form>
@@ -210,68 +97,117 @@
 
             </div>
 
-            {% if results %}
-
-            <section class="answer" aria-live="polite">
-
-                <h2>判定結果一覧</h2>
-
-                {% for r in results %}
-
-                <div class="answer-content result-{{ r.class|lower }}">
-
-                    <div>
-                        <span>ファイル名</span>
-                        <strong>{{ r.filename }}</strong>
-
-                        <span>判定結果</span>
-                        <p>{{ r.class }}</p>
-
-                        <span>信頼度</span>
-                        <p>{{ r.confidence }}%</p>
+            <div class="answer">
+                <h2>判定結果・カテゴリ別ダッシュボード</h2>
+                
+                <div class="dashboard-grid">
+                    <div class="category-tile" id="tile-good" data-class="good">
+                        <div class="tile-header">
+                            <span class="tile-icon">🍏</span>
+                            <h3>良品</h3>
+                        </div>
+                        <div class="tile-body">
+                            <div class="current-result" id="current-good">
+                                <p class="empty-msg">直近の判定なし</p>
+                            </div>
+                            <div class="history-box">
+                                <span class="history-title">📁 過去の保存履歴</span>
+                                <ul class="history-list" id="list-good">
+                                    <li class="loading-msg">読み込み中...</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    {% if loop.last %}
-                    <button type="button" id="gradcam-btn" class="btn-gradcam">
-                        🔍 Grad-CAM表示
-                    </button>
-                    {% endif %}
-
-                </div>
-
-                {% endfor %}
-
-            </section>
-
-            <!-- Grad-CAMモーダル -->
-            <div id="gradcam-modal" class="modal-overlay" style="display:none;">
-
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <h3>Grad-CAM: 判定根拠の可視化</h3>
-
-                        <button type="button" id="close-gradcam-btn" class="close-btn">
-                            &times;
-                        </button>
+                    <div class="category-tile" id="tile-oil" data-class="oil">
+                        <div class="tile-header">
+                            <span class="tile-icon">🛢️</span>
+                            <h3>油汚れ</h3>
+                        </div>
+                        <div class="tile-body">
+                            <div class="current-result" id="current-oil">
+                                <p class="empty-msg">直近の判定なし</p>
+                            </div>
+                            <div class="history-box">
+                                <span class="history-title">📁 過去の保存履歴</span>
+                                <ul class="history-list" id="list-oil">
+                                    <li class="loading-msg">読み込み中...</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="gradcam-image-container" class="gradcam-container">
-
-                        <img id="gradcam-image" alt="Grad-CAM可視化" style="max-width:100%;height:auto;">
+                    <div class="category-tile" id="tile-scratch" data-class="scratch">
+                        <div class="tile-header">
+                            <span class="tile-icon">⚡</span>
+                            <h3>スクラッチ</h3>
+                        </div>
+                        <div class="tile-body">
+                            <div class="current-result" id="current-scratch">
+                                <p class="empty-msg">直近の判定なし</p>
+                            </div>
+                            <div class="history-box">
+                                <span class="history-title">📁 過去の保存履歴</span>
+                                <ul class="history-list" id="list-scratch">
+                                    <li class="loading-msg">読み込み中...</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="gradcam-loading" style="display:none;text-align:center;padding:20px;">
-                        <p>計算中...</p>
+                    <div class="category-tile" id="tile-stain" data-class="stain">
+                        <div class="tile-header">
+                            <span class="tile-icon">💧</span>
+                            <h3>シミ</h3>
+                        </div>
+                        <div class="tile-body">
+                            <div class="current-result" id="current-stain">
+                                <p class="empty-msg">直近の判定なし</p>
+                            </div>
+                            <div class="history-box">
+                                <span class="history-title">📁 過去の保存履歴</span>
+                                <ul class="history-list" id="list-stain">
+                                    <li class="loading-msg">読み込み中...</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="gradcam-error" style="display:none;color:#d32f2f;padding:20px;">
+                    <div class="category-tile" id="tile-unknown" data-class="unknown">
+                        <div class="tile-header">
+                            <span class="tile-icon">❓</span>
+                            <h3>対象外</h3>
+                        </div>
+                        <div class="tile-body">
+                            <div class="current-result" id="current-unknown">
+                                <p class="empty-msg">直近の判定なし</p>
+                            </div>
+                            <div class="history-box">
+                                <span class="history-title">📁 過去の保存履歴</span>
+                                <ul class="history-list" id="list-unknown">
+                                    <li class="loading-msg">読み込み中...</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
             </div>
 
-            {% endif %}
+            <div id="gradcam-modal" class="modal-overlay" style="display:none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Grad-CAM: 判定根拠の可視化</h3>
+                        <button type="button" id="close-gradcam-btn" class="close-btn">&times;</button>
+                    </div>
+                    <div id="gradcam-image-container" class="preview-frame gradcam-container">
+                        <img id="gradcam-image" class="image-preview" alt="Grad-CAM可視化">
+                    </div>
+                    <div id="gradcam-loading" style="display:none;text-align:center;padding:20px;">
+                        <p>計算中...</p>
+                    </div>
+                    <div id="gradcam-error" style="display:none;color:#d32f2f;padding:20px;"></div>
+                </div>
+            </div>
 
         </div>
 
@@ -331,7 +267,6 @@
 
     let stream = null;
 
-    // プレビューのリセット関数
     function resetPreview() {
         fileName.textContent = 'ファイル未選択';
         imagePreview.removeAttribute("src");
@@ -361,7 +296,7 @@
     startCameraBtn.addEventListener('click', async () => {
         try {
             stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment" }, // スマホなら背面、PCなら標準
+                video: { facingMode: "environment" },
                 audio: false
             });
             video.srcObject = stream;
@@ -421,54 +356,129 @@
         }
     });
 
-    // ===== ⑥ Grad-CAM機能 =====
-    const gradcamBtn = document.getElementById('gradcam-btn');
+    // ===== ⑥ ダッシュボード ＆ 履歴・Grad-CAM 制御ロジック =====
     const gradcamModal = document.getElementById('gradcam-modal');
     const closeGradcamBtn = document.getElementById('close-gradcam-btn');
     const gradcamImage = document.getElementById('gradcam-image');
     const gradcamLoading = document.getElementById('gradcam-loading');
     const gradcamError = document.getElementById('gradcam-error');
 
-    if (gradcamBtn) {
-        gradcamBtn.addEventListener('click', async () => {
-            gradcamModal.style.display = 'flex';
-            gradcamLoading.style.display = 'block';
-            gradcamError.style.display = 'none';
-            gradcamImage.style.display = 'none';
+    const latestResults = {{ results | tojson | safe }};
+    const classesList = ['good', 'oil', 'scratch', 'stain', 'unknown'];
 
-            try {
-                const response = await fetch('/gradcam', {
-                    method: 'POST'
+    async function openGradcamModal(filename, className) {
+        gradcamModal.style.display = 'flex';
+        gradcamLoading.style.display = 'block';
+        gradcamError.style.display = 'none';
+        gradcamImage.style.display = 'none';
+
+        try {
+            const response = await fetch('/gradcam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: filename, class_name: className })
+            });
+
+            if (!response.ok) {
+                const error_data = await response.json();
+                throw new Error(error_data.error || 'Grad-CAMの生成に失敗しました');
+            }
+
+            const data = await response.json();
+            gradcamImage.src = data.gradcam_image;
+            gradcamImage.style.display = 'block';
+        } catch (error) {
+            gradcamError.textContent = `エラー: ${error.message}`;
+            gradcamError.style.display = 'block';
+        } finally {
+            gradcamLoading.style.display = 'none';
+        }
+    }
+
+    async function loadCategoryHistory(className) {
+        const listEl = document.getElementById(`list-${className}`);
+        if (!listEl) return;
+
+        try {
+            const response = await fetch(`/history/${className}`);
+            if (!response.ok) throw new Error('履歴の取得に失敗しました');
+            const data = await response.json();
+            
+            listEl.innerHTML = '';
+            if (data.files && data.files.length > 0) {
+                data.files.forEach(filename => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'file-name';
+                    nameSpan.textContent = filename;
+                    nameSpan.title = filename;
+                    li.appendChild(nameSpan);
+
+                    if (className !== 'unknown') {
+                        const gcBtn = document.createElement('button');
+                        gcBtn.type = 'button';
+                        gcBtn.className = 'btn-mini-gradcam';
+                        gcBtn.innerHTML = '🔍 分析';
+                        gcBtn.addEventListener('click', () => {
+                            openGradcamModal(filename, className);
+                        });
+                        li.appendChild(gcBtn);
+                    }
+                    listEl.appendChild(li);
                 });
+            } else {
+                listEl.innerHTML = '<li class="empty-msg">履歴なし</li>';
+            }
+        } catch (error) {
+            listEl.innerHTML = `<li class="error-msg">エラー</li>`;
+        }
+    }
 
-                if (!response.ok) {
-                    const error_data = await response.json();
-                    throw new Error(error_data.error || 'Grad-CAM計算に失敗しました');
-                }
+    classesList.forEach(cls => loadCategoryHistory(cls));
 
-                const data = await response.json();
-                gradcamImage.src = data.gradcam_image;
-                gradcamImage.style.display = 'block';
-            } catch (error) {
-                gradcamError.textContent = `エラー: ${error.message}`;
-                gradcamError.style.display = 'block';
-            } finally {
-                gradcamLoading.style.display = 'none';
+    if (latestResults && latestResults.length > 0) {
+        latestResults.forEach(res => {
+            const clsLower = res.class.toLowerCase();
+            const tile = document.getElementById(`tile-${clsLower}`);
+            const currentBox = document.getElementById(`current-${clsLower}`);
+            
+            if (tile && currentBox) {
+                tile.classList.add('highlight-active');
+                
+                currentBox.innerHTML = `
+                    <div class="current-pred-card">
+                        <div class="pred-file">${res.filename}</div>
+                        <div class="pred-conf">信頼度: <strong>${res.confidence}%</strong></div>
+                        ${clsLower !== 'unknown' ? `
+                            <button type="button" class="btn-current-gradcam" data-file="${res.filename}" data-class="${res.class}">
+                                🔍 この結果のGrad-CAM
+                            </button>
+                        ` : '<div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:4px;">対象外はGrad-CAM不可</div>'}
+                    </div>
+                `;
             }
         });
 
-        closeGradcamBtn.addEventListener('click', () => {
-            gradcamModal.style.display = 'none';
+        document.querySelectorAll('.btn-current-gradcam').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filename = btn.getAttribute('data-file');
+                const className = btn.getAttribute('data-class');
+                openGradcamModal(filename, className);
+            });
         });
+    }
 
+    if (closeGradcamBtn) {
+        closeGradcamBtn.addEventListener('click', () => { gradcamModal.style.display = 'none'; });
+    }
+    if (gradcamModal) {
         gradcamModal.addEventListener('click', (e) => {
-            if (e.target === gradcamModal) {
-                gradcamModal.style.display = 'none';
-            }
+            if (e.target === gradcamModal) { gradcamModal.style.display = 'none'; }
         });
     }
 </script>
 
 </body>
-
 </html>
