@@ -572,16 +572,47 @@ footer p {
    レスポンシブ (スマートフォン対応)
    ========================================================================== */
 @media (max-width: 760px) {
+    /* ヘッダー全体のレイアウト調整 */
     .site-header {
-        padding: 16px 20px !important;
+        padding: 12px 16px !important;
+        display: flex !important;
+        flex-direction: column !important; /* スマホでは縦に2段にする */
+        align-items: stretch !important;
+        gap: 12px !important;
     }
+
+    /* タイトルと、右側のボタン群を入れるエリアの調整 */
     .site-header h1 {
-        font-size: 18px;
+        font-size: 1.1rem !important;
+        text-align: center;      /* タイトルを中央寄せに */
+        white-space: nowrap;
+        margin: 0 !important;
     }
+
+    /* ボタン群（テーマ切り替えや履歴ボタンなど）を横1列に並べるコンテナ */
+    .header-controls {
+        display: flex !important;
+        flex-direction: row !important;    /* ボタン同士は横1列 */
+        justify-content: right !important; 
+        align-items: center !important;
+        gap: 8px !important;               /* ボタン間の隙間を少し狭く */
+        width: 100%;
+    }
+
+/* テーマ切り替えボタン（下の段）を右寄せにする */
     .theme-toggle-btn {
-        padding: 6px 12px !important;
-        font-size: 0.8rem;
+        padding: 6px 12px !important;      /* スマホ用に少し押しやすく微調整 */
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;    /* 「ダークモード」の文字が絶対に折れないようにする */
+        flex-shrink: 0 !important;         /* 画面幅に潰されるのを防ぐ */
+        
+        /* ★ これでボタンが自動的に右端に寄ります */
+        margin-left: auto !important;      
+        display: inline-flex !important;
+        align-items: center !important;
     }
+
+    /* その他の既存のレスポンシブコード */
     .intro {
         flex-direction: column;
         gap: 16px;
@@ -599,6 +630,6 @@ footer p {
         max-width: 100%;
     }
     .gradcam-container {
-        height: 280px;       /* スマホ画面用にコンテナの高さを少しコンパクトに */
+        height: 280px;
     }
 }

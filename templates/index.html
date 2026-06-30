@@ -17,11 +17,8 @@
         </div>
         <div style="display: flex; align-items: center; gap: 15px; margin-right: 20px;">
             <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="テーマ切り替え">
-                <span id="theme-icon">🌙</span> <span id="theme-text">ダークモードへ</span>
+                <span id="theme-icon">🌙</span> <span id="theme-text">ダーク</span>
             </button>
-            <div class="model-badge">
-                VGG16 / 4 classes
-            </div>
         </div>
     </header>
 
@@ -214,7 +211,7 @@
     </main>
 
     <footer>
-        <p>Mobile Phone Defect Classification</p>
+        <p>&copy; Team deeplearning</p>
     </footer>
 
 <script>
@@ -242,10 +239,10 @@
 
         if (theme === 'dark') {
             themeIcon.textContent = '☀️';
-            themeText.textContent = 'ライトモードへ';
+            themeText.textContent = 'ライトモード';
         } else {
             themeIcon.textContent = '🌙';
-            themeText.textContent = 'ダークモードへ';
+            themeText.textContent = 'ダークモード';
         }
     }
 
