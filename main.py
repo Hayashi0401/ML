@@ -16,7 +16,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 classes = ["good", "oil", "scratch", "stain"]
-ALL_CLASSES = classes + ["unknown"]
+ALL_CLASSES = classes 
 image_size = 200
 
 UPLOAD_FOLDER = "uploads"
@@ -176,24 +176,11 @@ def upload_file():
 
                 pred_class = classes[predicted]
 
-                # ---------- フィルター ----------
-
-                if confidence < 80:
-                    pred_answer = "Unknown"
-
-                elif pred_class == "good" and confidence < 98:
-                    pred_answer = "Unknown"
-
-                else:
-                    pred_answer = pred_class
-
                 # ---------- 保存 ----------
 
                 save_dir = os.path.join(
                     UPLOAD_FOLDER,
-                    pred_answer
-                    if pred_answer in classes
-                    else "unknown"
+                    pred_class
                 )
 
                 os.makedirs(save_dir, exist_ok=True)
@@ -212,7 +199,7 @@ def upload_file():
 
                 results.append({
                     "filename": filename,
-                    "class": pred_answer,
+                    "class": pred_class,
                     "confidence": float(round(confidence, 1))
                 })
 
