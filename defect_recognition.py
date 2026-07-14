@@ -152,7 +152,7 @@ model.fit(
     X_train,
     y_train,
     batch_size=16,
-    epochs=6,
+    epochs=7,
     validation_data=(X_test, y_test),
     class_weight=class_weight
 )

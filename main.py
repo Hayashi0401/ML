@@ -174,6 +174,9 @@ def upload_file():
                 predicted = result.argmax()
                 confidence = result[predicted] * 100
 
+                if confidence > 99.99:
+                    confidence = 99.99
+
                 pred_class = classes[predicted]
 
                 # ---------- 保存 ----------
@@ -200,7 +203,7 @@ def upload_file():
                 results.append({
                     "filename": filename,
                     "class": pred_class,
-                    "confidence": float(round(confidence, 1))
+                    "confidence": 99.99 if confidence == 99.99 else float(round(confidence, 1))
                 })
 
         return render_template(
